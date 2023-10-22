@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  agent:
+    image: battmo-agent
+    build:
+      context: ./build
+    restart: unless-stopped
+    #entrypoint: "prefect agent start -p 'default-agent-pool'"
+    #entrypoint: "/bin/bash -c 'prefect deployment build -a -n performance_spec -p default-agent-pool /root/flows/testflow.py:run_performance_spec'; /bin/bash -c 'prefect agent start -p default-agent-pool'"
+    entrypoint: >-
+      /bin/bash -c '
+      prefect deployment build -a -n performance_spec -p default-agent-pool /root/flows/testflow.py:run_performance_spec;
+      prefect agent start -p default-agent-pool
+      '
+    working_dir: "/root/flows"
+    volumes:
+      - "./flows:/root/flows"
+    environment:
+      - PREFECT_API_URL=${PREFECT_SERVER}/api
+#       Use PREFECT_API_KEY to use the CLI to interact with Prefect Cloud
+#     - PREFECT_API_KEY=YOUR_API_KEY
